@@ -1,0 +1,39 @@
+=== SHORT DESCRIPTION ===
+More uses for the game's Bribery skill: look at anyone and press B to ask them for money. Your Bribery level sets the odds and the reward (OC, or RM at higher levels), and every try gives Bribery XP. Police pay double, but failing can get you reported.
+
+=== FULL DESCRIPTION (BBCode) ===
+[size=5][b]Bribery+[/b][/size]
+More uses for the game's [b]Bribery[/b] skill in Obenseuer: ask the people you meet for money.
+
+[size=4][b]Features[/b][/size]
+[list]
+[*][b]Ask anyone for money.[/b] Look at a person and press [b]B[/b] (configurable). A hint under the crosshair shows your chance of success.
+[*][b]Uses the game's own Bribery skill.[/b] Your Bribery level sets the odds and the reward. Each try gives Bribery XP the way the game does (more XP when the odds were worse), so it also makes police bribes and talking down robbers easier.
+[*][b]Rewards grow with your level.[/b] 3 to 12 OC at level 1, about 4.6 times that at level 10. Higher levels also have a growing chance (up to 40%) of paying in [b]RM[/b], worth a bit more.
+[*][b]Everyone is different.[/b] Some people are generous and some are stingy, and each person stays the same.
+[*][b]Police pay more[/b] (twice as much) but are much harder to convince, and more likely to report you.
+[*][b]Failing has risks.[/b] People may be offended and refuse to talk money with you for a few days, or report you for harassment.
+[*]One try per person per in-game day. Alcohol and mushrooms affect your odds the way the game's skills work.
+[*]The "asked today" and "offended" lists are saved with your save game.
+[/list]
+Every number can be changed in the config file or with ConfigurationManager.
+
+[size=4][b]Requirements[/b][/size]
+[list]
+[*]BepInEx 6 (Unity.Mono, x64)
+[/list]
+
+[size=4][b]Installation[/b][/size]
+Extract the archive into the game folder (the one with Obenseuer.exe), so the DLL ends up in [i]BepInEx\plugins\Obenseuer-BriberyPlus\[/i].
+
+[size=4][b]Works well with[/b][/size]
+[list]
+[*][b]Haggling[/b]: a Haggling skill for better trader prices.
+[*][b]Stealth[/b]: a Stealth skill for getting away with it unseen.
+[*][b]Scavenger[/b] and [b]Loot Map[/b].
+[/list]
+
+[size=4][b]Source[/b][/size]
+https://github.com/JuanBerta/Obenseuer-BriberyPlus
+
+Made by JuanBerta, with AI assistance (Claude).
