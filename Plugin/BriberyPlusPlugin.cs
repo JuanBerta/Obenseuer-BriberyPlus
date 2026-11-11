@@ -49,7 +49,7 @@ namespace BriberyPlusMod
 	/// sets the odds and the size of the reward, and the game gives Bribery XP for each try, more when the
 	/// odds were worse (PlayerStats.SkillSuccess, the same call the game uses for police bribes).
 	/// </summary>
-	[BepInPlugin("JuanBerta.Obenseuer.BriberyPlus", "Bribery+", "1.0.0")]
+	[BepInPlugin("JuanBerta.Obenseuer.BriberyPlus", "Bribery+", "1.0.1")]
 	public class BriberyPlusPlugin : BaseUnityPlugin
 	{
 		internal static BriberyPlusSave Save { get { return SkillHost.Save as BriberyPlusSave; } }
@@ -70,6 +70,8 @@ namespace BriberyPlusMod
 		internal static ConfigEntry<float> RmChancePerLevel;
 		internal static ConfigEntry<float> RmBonus;
 		internal static ConfigEntry<float> XpFactor;
+		internal static ConfigEntry<float> FailureXpFactor;
+		internal static ConfigEntry<float> MaxDrunkXpBonus;
 		internal static ConfigEntry<float> OffendChance;
 		internal static ConfigEntry<int> OffendedDays;
 		internal static ConfigEntry<float> ReportChance;
@@ -105,6 +107,8 @@ namespace BriberyPlusMod
 			RmChancePerLevel = cfg.Bind("Rewards", "RmChancePerLevel", 0.04f, D("Chance per Bribery level that you're paid in RM instead of OC (0.04 = 40% at level 10).", 80, new AcceptableValueRange<float>(0f, 0.1f)));
 			RmBonus = cfg.Bind("Rewards", "RmBonus", 1.25f, D("RM rewards are worth this much more than the same OC reward.", 75, new AcceptableValueRange<float>(0.1f, 5f)));
 			XpFactor = cfg.Bind("Rewards", "XpFactor", 1f, D("Multiplies the Bribery XP the game gives for each try.", 70, new AcceptableValueRange<float>(0f, 10f)));
+			FailureXpFactor = cfg.Bind("Rewards", "FailureXpFactor", 2.5f, D("A refusal gives this many times the XP the game normally gives for a failure (the game gives half of a success; 2.5 = a bit more than a success).", 65, new AcceptableValueRange<float>(1f, 10f)));
+			MaxDrunkXpBonus = cfg.Bind("Rewards", "MaxDrunkXpBonus", 1f, D("Extra Bribery XP when asking drunk, scaled by alcohol in blood (1 = up to +100%), whether they pay or not.", 60, new AcceptableValueRange<float>(0f, 3f)));
 
 			OffendChance = cfg.Bind("Failure", "OffendChance", 0.25f, D("When someone says no, the chance they're offended and won't talk money with you for a few days.", 100, new AcceptableValueRange<float>(0f, 1f)));
 			OffendedDays = cfg.Bind("Failure", "OffendedDays", 3, D("How many in-game days an offended person stays offended.", 90, new AcceptableValueRange<int>(1, 30)));
@@ -254,8 +258,23 @@ namespace BriberyPlusMod
 
 			float fail = FailChance(t);
 			bool ok = PlayerStats.instance.SkillSuccess(PlayerStats.PlayerSkillType.Bribery, fail, false, XpFactor.Value);
+			ExtraXp(ok, fail);
 			if (ok) Pay(t, fail);
 			else Refuse(t);
+		}
+
+		// The game's SkillSuccess gave 0.1 x fail chance for a success and 0.05 x fail chance for a failure.
+		// Top that up: failures count FailureXpFactor times as much, and being drunk adds its bonus to both.
+		private static void ExtraXp(bool ok, float fail)
+		{
+			try
+			{
+				float given = XpFactor.Value * (ok ? 0.1f : 0.05f) * (fail == 0f ? 0.01f : fail);
+				float alcohol = PlayerStats.instance.alcohol != null ? Mathf.Clamp(PlayerStats.instance.alcohol.AlcoholInBlood, 0f, 100f) : 0f;
+				float target = given * (ok ? 1f : FailureXpFactor.Value) * (1f + MaxDrunkXpBonus.Value * alcohol / 100f);
+				if (target > given) PlayerStats.instance.IncreaseSkill(PlayerStats.PlayerSkillType.Bribery, target - given);
+			}
+			catch (Exception) { }
 		}
 
 		private static void Pay(Target t, float fail)
